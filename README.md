@@ -1,76 +1,118 @@
-# Advanced Time Series Forecasting with LSTM
+# Advanced Time Series Forecasting using LSTM with Self-Attention
 
-## 📌 Project Overview
-This project demonstrates an end-to-end **multivariate time series forecasting pipeline**
-using a **Long Short-Term Memory (LSTM)** neural network.  
-The model is compared against a classical **ARIMA baseline** and includes:
+## Overview
 
-- Hyperparameter optimization (Optuna)
-- Early stopping
-- Explainability with SHAP
-- Sensitivity analysis
-- Proper inverse scaling of predictions
+This project implements an advanced deep learning approach for time series forecasting using an LSTM network enhanced with a **custom self-attention mechanism**.
+The goal is to improve forecasting performance and interpretability by allowing the model to learn which past time steps are most important for prediction.
 
-Synthetic data is used to simulate realistic temporal patterns.
+The project strictly follows time series evaluation best practices, including **rolling origin cross-validation, and provides direct visualization of learned attention weights**.
 
----
+## Key Features
 
-## 🧠 Model Architecture
-- LSTM (PyTorch)
-- Fully connected output layer
-- Sequence-to-one prediction
-- Optimized hidden units via Optuna
+- LSTM-based sequence modeling
+- Custom self-attention layer implemented from scratch
+- Rolling origin cross-validation for time series evaluation
+- Visualization of temporal attention weights
+- Comparison between actual and predicted values
+- Fully reproducible synthetic dataset
 
----
+## Model Architecture
 
-## 📊 Dataset
-Synthetic time series with:
-- `feature_1`: sinusoidal pattern + noise
-- `feature_2`: cosine pattern + noise
-- `target`: linear + nonlinear combination of features and time
+The model consists of three main components:
 
----
+1. LSTM Layer
+   Captures temporal dependencies in the input sequence.
 
-## ⚙️ Pipeline
-1. Data generation
-2. MinMax scaling
-3. Sliding window sequence creation
-4. Train / validation / test split
-5. Hyperparameter tuning (Optuna)
-6. Final training with early stopping
-7. Inverse scaling and evaluation
-8. ARIMA baseline comparison
-9. SHAP explainability
-10. Sensitivity analysis
+2. Self-Attention Layer
+   Learns a weight for each time step in the LSTM output sequence and produces a context vector as a weighted sum.
 
----
+3. Fully Connected Output Layer
+   Maps the attention-based context vector to the final prediction.
 
-## 📈 Evaluation Metrics
-- RMSE
-- MAE
-- MAPE
+Unlike standard LSTM models, the final prediction is **not** taken from the last hidden state. Instead, it is derived from the attention-weighted context vector.
 
-Metrics are reported **on the original data scale**.
+## Attention Mechanism Explanation
 
----
+The self-attention layer computes a score for each time step in the LSTM output.
+These scores are normalized using a softmax function to produce attention weights.
 
-## 🔍 Explainability
-SHAP values are computed using `shap.DeepExplainer` to:
-- Identify dominant temporal features
-- Understand feature impact across sequences
-- Improve model transparency
+Higher attention weights indicate that the model considers those time steps more important for forecasting.
+The learned weights are visualized to interpret the temporal focus of the model.
 
----
+## Dataset
 
-## 🧪 Sensitivity Analysis
-A simulated shock is applied to one feature to verify:
-- Stability
-- Smooth model response
-- Robustness to input perturbations
+A synthetic multivariate time series dataset is generated with:
 
----
+- Two input features based on sine and cosine functions with noise
+- One target variable constructed from the features and a time trend
 
-## 🚀 How to Run
-```bash
-pip install numpy pandas torch sklearn statsmodels optuna shap matplotlib
-python main.py
+The dataset is scaled using MinMax normalization before training.
+
+## Evaluation Strategy
+
+### Rolling Origin Cross-Validation
+
+Instead of a standard train-test split, the model is evaluated using **rolling origin cross-validation**, which is appropriate for time series data.
+
+For each fold:
+
+- Training data includes all observations up to a given time point
+- Testing data includes the immediately following time segment
+- RMSE is computed for each fold
+
+This approach prevents data leakage and simulates real-world forecasting scenarios.
+
+## Results
+
+- Root Mean Squared Error (RMSE) is reported for each rolling fold
+- Average RMSE is used as the final performance metric
+- Attention weight plots demonstrate that the model focuses more on recent time steps
+
+## Visualizations
+
+The project generates the following plots:
+
+- Learned temporal attention weights for a sample prediction
+- Actual vs predicted target values over time
+
+These visualizations help validate both performance and interpretability.
+
+## Requirements
+
+- Python 3.8 or higher
+- NumPy
+- Pandas
+- PyTorch
+- scikit-learn
+- Matplotlib
+
+Install dependencies using:
+
+`pip install numpy pandas torch scikit-learn matplotlib`
+
+## How to Run
+
+1. Clone the repository or download the script.
+2. Ensure all required libraries are installed.
+3. Run the Python script:
+
+`python main.py`
+
+All results and visualizations will be displayed automatically.
+
+## Project Structure
+
+```.
+├── main.py
+├── README.md
+```
+
+## Notes
+
+- No external explainability tools such as SHAP are used.
+- Attention weights are directly extracted from the model.
+- The implementation prioritizes clarity, correctness, and academic integrity.
+
+## Author
+
+Developed as part of an advanced time series forecasting exercise using deep learning and attention mechanisms.
